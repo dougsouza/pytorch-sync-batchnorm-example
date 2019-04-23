@@ -18,7 +18,7 @@ data_loader = DataLoader(dataset, batch_size=batch_size,
                                 num_workers=8, pin_memory=True, sampler=sampler, drop_last=True)
 ```
 
-## Step 2: Converting yout model to use torch.nn.SyncBatchNorm
+## Step 2: Converting your model to use torch.nn.SyncBatchNorm
 
 We don't need to change our model, it just stay as it is. We just need to convert regular batchnorm layers to [torch.nn.SyncBatchNorm](https://pytorch.org/docs/master/nn.html#torch.nn.SyncBatchNorm).
 ```python
