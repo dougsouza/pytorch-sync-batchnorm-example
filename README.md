@@ -46,8 +46,15 @@ We don't need to change our model, it just stay as it is. We just need to conver
 net = torch.nn.SyncBatchNorm.convert_sync_batchnorm(net)
 ```
 
+## Step 4: Wraping your model with DistributedDataParallel
+The same way we wrapped our models with `DataParallel`, we need to do same but with [DistributedDataParallel](https://pytorch.org/docs/master/nn.html#distributeddataparallel).
 
-## Step 4: Adapting your DataLoader
+```python
+ net = torch.nn.parallel.DistributedDataParallel(net,
+                device_ids=[args.local_rank], output_device=args.local_rank)
+```
+
+## Step 5: Adapting your DataLoader
 Since we are going to launch multiple processes, we need to take care of the portion of the data provided to each process. This is very simple, assuming you have your Dataset already implemented.
 
 ```python
@@ -58,7 +65,7 @@ data_loader = DataLoader(dataset, batch_size=batch_size,
 ```
 
 
-## Step 5: Launching the processes
+## Step 6: Launching the processes
 After we parse `--local_rank` and take care of what happens with each process, we can launch the processes using [torch.distributed.launch](https://pytorch.org/docs/master/distributed.html#launch-utility) utility. `--nproc_per_node` is the number of GPUs.
 
 ```bash
