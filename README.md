@@ -18,25 +18,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--local_rank', type=int, default=0)
 ```
 
-It is our job to send each model to its device:
 
-```python
-device = torch.device('cuda:{}'.format(args.local_rank))
-net = net.to(device)
-```
-
-Remember that we need to do the same for the inputs of the model. i.e.:
-
-```python
-for it, (input, target) in enumerate(self.data_loader):
-    input, target = input.to(device), target.to(device)
-```
-
-## Step 2: Setting up the process
+## Step 2: Setting up the process and device
 
 Next we need to init the process, we do this by adding the following code to our script:
 
 ```python
+torch.cuda.set_device(args.local_rank)
+
 world_size = args.ngpu
 torch.distributed.init_process_group(
     'nccl',
@@ -45,6 +34,8 @@ torch.distributed.init_process_group(
     rank=args.local_rank,
 )
 ```
+
+
 
 ## Step 3: Converting your model to use torch.nn.SyncBatchNorm
 
@@ -64,6 +55,20 @@ The same way we wrapped our models with `DataParallel`, we need to do same but w
     device_ids=[args.local_rank],
     output_device=args.local_rank,
 )
+```
+
+It is our job to send each model to its device:
+
+```python
+device = torch.device('cuda:{}'.format(args.local_rank))
+net = net.to(device)
+```
+
+Remember that we need to do the same for the inputs of the model. i.e.:
+
+```python
+for it, (input, target) in enumerate(self.data_loader):
+    input, target = input.to(device), target.to(device)
 ```
 
 ## Step 5: Adapting your DataLoader
