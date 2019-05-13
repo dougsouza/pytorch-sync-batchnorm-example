@@ -45,18 +45,6 @@ We don't need to change our model, it just stay as it is. We just need to conver
 net = torch.nn.SyncBatchNorm.convert_sync_batchnorm(net)
 ```
 
-## Step 4: Wraping your model with DistributedDataParallel
-
-The same way we wrapped our models with `DataParallel`, we need to do same but with [DistributedDataParallel](https://pytorch.org/docs/master/nn.html#distributeddataparallel).
-
-```python
- net = torch.nn.parallel.DistributedDataParallel(
-    net,
-    device_ids=[args.local_rank],
-    output_device=args.local_rank,
-)
-```
-
 It is our job to send each model to its device:
 
 ```python
@@ -69,6 +57,18 @@ Remember that we need to do the same for the inputs of the model. i.e.:
 ```python
 for it, (input, target) in enumerate(self.data_loader):
     input, target = input.to(device), target.to(device)
+```
+
+## Step 4: Wraping your model with DistributedDataParallel
+
+The same way we wrapped our models with `DataParallel`, we need to do same but with [DistributedDataParallel](https://pytorch.org/docs/master/nn.html#distributeddataparallel).
+
+```python
+ net = torch.nn.parallel.DistributedDataParallel(
+    net,
+    device_ids=[args.local_rank],
+    output_device=args.local_rank,
+)
 ```
 
 ## Step 5: Adapting your DataLoader
